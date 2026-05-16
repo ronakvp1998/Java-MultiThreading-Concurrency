@@ -1,0 +1,15 @@
+
+
+@FunctionalInterface
+public interface Runnable{
+    public abstract void run();
+}
+
+public class Thread implements Runnable{
+    run(){}
+    init(){}
+    sleep(){}
+    start(){}
+    stop(){}
+    interrupt(){}
+}

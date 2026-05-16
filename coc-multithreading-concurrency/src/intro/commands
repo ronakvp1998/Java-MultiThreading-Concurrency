@@ -1,0 +1,10 @@
+java -Xms256m -Xmx2g <MainClassName>
+
+Here is what those flags mean:
+-Xms256m: Sets the initial (and minimum) heap memory size to 256 megabytes.
+The JVM will start with this amount of memory allocated.
+
+-Xmx2g: Sets the maximum heap memory size to 2 gigabytes.
+The JVM will not be allowed to use more heap memory than this
+
+, preventing it from consuming all your system's RAM.
