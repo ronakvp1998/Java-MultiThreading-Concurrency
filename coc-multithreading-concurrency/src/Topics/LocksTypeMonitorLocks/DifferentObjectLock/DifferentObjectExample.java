@@ -24,7 +24,8 @@ class ShoppingCart {
     private int itemCount = 0;
 
     // Locks only the specific instance of ShoppingCart calling it
-    public synchronized void addItem(String itemName, String threadName) {
+    public
+    void addItem(String itemName, String threadName) {
         System.out.println(threadName + " started adding " + itemName + " to their cart.");
 
         try {
