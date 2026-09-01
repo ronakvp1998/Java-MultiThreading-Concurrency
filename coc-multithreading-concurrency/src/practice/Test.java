@@ -1,56 +1,55 @@
 package practice;
 
-
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Test {
 
+    public static void main(String[] args) {
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        Printer printer = new Printer();
+        service.submit(() -> printer.print(1));
+        service.submit(() -> printer.print(2));
+        service.submit(() -> printer.print(3));
+
+        service.shutdown();
+    }
 }
 
+class Printer{
 
-class PrintNumbers{
-    private static final int MAX_NUMBERS = 10;
-    private static final int TOTAL_THREADS = 3;
-    private int currentNum = 1;
+    private final int MAX_COUNT = 15;
+    private int currentCount = 1;
 
-    private final ReentrantLock lock = new ReentrantLock();
-    private final Condition stateChanged = lock.newCondition();
+    Lock lock = new ReentrantLock();
+    Condition condition = lock.newCondition();
 
-    private void printNumber(int threadId){
-        while (true){
+    public void print(int threadId){
+        while (currentCount < MAX_COUNT){
             lock.lock();
-            try {
-                while (currentNum <= MAX_NUMBERS && currentNum % TOTAL_THREADS != threadId % TOTAL_THREADS){
-                    stateChanged.await();
+            try{
+                while (currentCount%3 != threadId%3 && currentCount < MAX_COUNT){
+                    condition.await();
                 }
-                if(currentNum > MAX_NUMBERS){
-                    stateChanged.signalAll();
+
+                if(currentCount >= MAX_COUNT){
+                    condition.signalAll();
                     break;
                 }
-                currentNum++;
-                stateChanged.signalAll();
-            }catch (InterruptedException e){
-                break;
+
+                System.out.println(currentCount + " " + Thread.currentThread().getName());
+                currentCount++;
+                condition.signal();
+            }catch(InterruptedException e){
+                Thread.currentThread().interrupt();
+                return;
             }finally {
                 lock.unlock();
             }
         }
     }
-
-    public static void main(String[] args) {
-        PrintNumbers printNumbers = new PrintNumbers();
-        ExecutorService executorService = Executors.newFixedThreadPool(TOTAL_THREADS);
-        for(int i=1;i<=TOTAL_THREADS;i++){
-            final int threadId = i;
-            executorService.submit(() -> printNumbers.printNumber(threadId));
-        }
-        executorService.shutdown();
-    }
-
 }
-
 
